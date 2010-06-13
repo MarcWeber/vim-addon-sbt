@@ -1,0 +1,12 @@
+{
+  "name" : "vim-addon-sbt",
+  "description" : "run the simple build tool in the background feeding compilation results into Vim quickfix window",
+  "version" : "0.0",
+  "author" : "Marc Weber <marco-oweber@gmx.de>",
+  "maintainer" : "Marc Weber <marco-oweber@gmx.de>",
+  "repository" : {"type": "git", "url": "git://github.com/MarcWeber/vim-addon-fcsh.git"},
+  "dependencies" : {
+    "vim-addon-mw-utils": {},
+    "vim-addon-actions": {}
+  }
+}
