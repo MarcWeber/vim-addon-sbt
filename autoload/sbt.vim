@@ -54,8 +54,18 @@ if not globals().has_key('sbtCompiler'):
     def waitFor(self, pattern, out):
       """ wait until pattern is found in an output line. Write non matching lines to out """
 
+      pat = "Project does not exist, create new project? (y/N/s) "
+
+      allPatterns = [pat, pattern]
+
       while 1:
-        line = self.readLine()
+        line = self.readLineSkip(allPatterns)
+
+        # hack: forward pat question to user
+        if line == pat:
+          self.sbt_i.write(vim.eval("input('%s')" % pat)+"\n")
+          self.sbt_i.flush()
+          continue
 
         match = re.match(pattern, line)
         if match != None:
@@ -63,25 +73,38 @@ if not globals().has_key('sbtCompiler'):
         elif out != None:
           out.write(line+"\n")
 
-    def readLine(self):
-      """ if line starts with "> " return that partial line else return full
-          Thus a ">  ..." line will be split into two parts: "> " and " ..."
-      line """
+
+    # the input line usually don't end with \n
+    # so break on those queries
+    # probably this can be implemented more efficiently
+    def readLineSkip(self, patterns):
+      # copy list:
+      l = patterns[:]
+      idx = 0
       read = ""
-      for i in "> ":
+
+      while len(l) > 0:
         c = self.sbt_o.read(1)
         if c == "\n":
           return read
-        read = read + c
-        if c != i:
-          break
+        else:
+          read = read+c
 
-      if read == "> ":
-        return read
-      else:
-        return read + self.sbt_o.readline()
+        # remove patterns from list which can no longer match
+        for i in range(len(l)-1,-1,-1):
+          if l[i][idx] != c:
+            # this pattern can no longer match
+            l.pop(i)
+          else:
+            # full match
+            if len(l[i]) == idx+1:
+              return read
+        idx += 1
 
-    
+      line = read + self.sbt_o.readline()
+      # remove trailing \n
+      return line[:-1]
+
     def waitForShell(self, out):
       self.waitFor("> ", out)
     
@@ -114,7 +137,7 @@ fun! sbt#CompileRHS(usePython, args)
   let ef=
       \  '%E\ %#[error]\ %f:%l:\ %m,%C\ %#[error]\ %p^,%-C%.%#,%Z'
       \.',%W\ %#[warn]\ %f:%l:\ %m,%C\ %#[warn]\ %p^,%-C%.%#,%Z'
-      \.',%-G%.%#'
+  "   \.',%-G%.%#'
 
   let args = a:args
 
