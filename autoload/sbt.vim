@@ -1,6 +1,10 @@
 exec scriptmanager#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
 let s:c['mxmlc_default_args'] = get(s:c,'mxmlc_default_args', ['--strict=true'])
 
+if !exists('g:sbt_debug')
+  let g:sbt_debug = 0
+endif
+
 " author: Marc Weber <marco-oweber@gxm.de>
 
 " usage example:
@@ -17,6 +21,9 @@ let s:c['mxmlc_default_args'] = get(s:c,'mxmlc_default_args', ['--strict=true'])
 " You can still use vim-addon-actions to make Vim trigger recompilation
 " when you write a file
 
+
+let s:self=expand('<sfile>:h')
+
 " TODO implement shutdown, clean up ?
 "      support quoting of arguments
 fun! sbt#Compile(sbt_command_list)
@@ -27,109 +34,12 @@ fun! sbt#Compile(sbt_command_list)
     throw "python support required to run sbt process"
   endif
 
+  " using external file which can be tested without Vim.
+  exec 'pyfile '.s:self.'/sbt.py'
+
 python << PYTHONEOF
-import sys, tokenize, cStringIO, types, socket, string, vim, os, re
-from subprocess import Popen, PIPE
-
-if not globals().has_key('sbtCompiler'):
-
-  # sbt_dict keeps compilation ids
-  sbt_dict = {}
-
-  class SBTCompiler():
-
-    def __init__(self):
-      self.tmpFile = vim.eval("tempname()")
-      self.ids = {}
-      # errors are print to stderr. We want to catch them!
-      # start interactive mode so that we can recompile without reloading sbt
-      p = Popen(["java","-Dsbt.log.noformat=true","-jar",vim.eval('SBT_JAR()')], \
-            shell = False, bufsize = 1, stdin = PIPE, stdout = PIPE, stderr = PIPE)
-
-      self.sbt_o = p.stdout
-      self.sbt_i = p.stdin
-
-      self.waitForShell(None)
-    
-    def waitFor(self, pattern, out):
-      """ wait until pattern is found in an output line. Write non matching lines to out """
-
-      # This will break.. :-/ (TODO)
-      pat = [ "Project does not exist, create new project? (y/N/s) ",
-              "Name: ",
-              "Organization: ",
-              "Version [1.0]: ",
-              "Scala version [2.7.7]: ",
-              "sbt version [0.7.4]: " ]
-
-      allPatterns = pats ++ [pattern]
-
-      while 1:
-        line = self.readLineSkip(allPatterns)
-
-        # hack: forward pat question to user
-        if pat.index(line) > 0:
-          self.sbt_i.write(vim.eval("input('%s')" % line)+"\n")
-          self.sbt_i.flush()
-          continue
-
-        match = re.match(pattern, line)
-        if match != None:
-          return match
-        elif out != None:
-          out.write(line+"\n")
-
-
-    # the input line usually don't end with \n
-    # so break on those queries
-    # probably this can be implemented more efficiently
-    def readLineSkip(self, patterns):
-      # copy list:
-      l = patterns[:]
-      idx = 0
-      read = ""
-
-      while len(l) > 0:
-        c = self.sbt_o.read(1)
-        if c == "\n":
-          return read
-        else:
-          read = read+c
-
-        # remove patterns from list which can no longer match
-        for i in range(len(l)-1,-1,-1):
-          if l[i][idx] != c:
-            # this pattern can no longer match
-            l.pop(i)
-          else:
-            # full match
-            if len(l[i]) == idx+1:
-              return read
-        idx += 1
-
-      line = read + self.sbt_o.readline()
-      # remove trailing \n
-      return line[:-1]
-
-    def waitForShell(self, out):
-      self.waitFor("> ", out)
-    
-    def sbt(self, args):
-      out = open(self.tmpFile, 'w')
-      cmd = " ".join(args)
-
-      self.sbt_i.write(cmd+"\n")
-      self.sbt_i.flush()
-      res = self.waitFor(".*Total time: .*completed.*", out)
-      self.waitForShell(out)
-      out.close()
-      return self.tmpFile
-
-  sbtCompiler = SBTCompiler()
-
 f = sbtCompiler.sbt(vim.eval('g:sbt_command_list'))
 vim.command("let g:sbt_result='%s'"%f)
-
 PYTHONEOF
 
   " unlet g:sbt_command_list
