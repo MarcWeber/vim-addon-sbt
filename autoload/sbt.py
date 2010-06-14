@@ -6,7 +6,7 @@ try:
   import vim
 
   is_vim = True
-  DEBUG = vim.eval('g:sbt_debug')
+  DEBUG = vim.eval('g:sbt_debug') != '0'
   TEMP_NAME = vim.eval("tempname()")
   SBT_JAR = vim.eval('SBT_JAR()')
 
