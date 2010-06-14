@@ -54,16 +54,22 @@ if not globals().has_key('sbtCompiler'):
     def waitFor(self, pattern, out):
       """ wait until pattern is found in an output line. Write non matching lines to out """
 
-      pat = "Project does not exist, create new project? (y/N/s) "
+      # This will break.. :-/ (TODO)
+      pat = [ "Project does not exist, create new project? (y/N/s) ",
+              "Name: ",
+              "Organization: ",
+              "Version [1.0]: ",
+              "Scala version [2.7.7]: ",
+              "sbt version [0.7.4]: " ]
 
-      allPatterns = [pat, pattern]
+      allPatterns = pats ++ [pattern]
 
       while 1:
         line = self.readLineSkip(allPatterns)
 
         # hack: forward pat question to user
-        if line == pat:
-          self.sbt_i.write(vim.eval("input('%s')" % pat)+"\n")
+        if pat.index(line) > 0:
+          self.sbt_i.write(vim.eval("input('%s')" % line)+"\n")
           self.sbt_i.flush()
           continue
 
