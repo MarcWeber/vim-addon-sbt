@@ -15,7 +15,7 @@ try:
     vim.command("echoe '%s'" % s)
 
   def ask_user(question):
-    return vim.eval("input('%s')" % s)
+    return vim.eval("input('%s')" % question)
 
 except ImportError, e:
 

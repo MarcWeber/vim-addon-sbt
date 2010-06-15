@@ -24,4 +24,4 @@ call actions#AddAction('run sbt with bg#RunQF'                    , {'action': f
 call actions#AddAction('run sbt with bg process (requires python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["compile"]]})})
 
 " run a sbt command manually
-command -nargs=* SBT call sbt#RunCommand(<f-args>)
+command -nargs=* SBT call sbt#RunCommand([<f-args>])
