@@ -37,23 +37,37 @@ fun! sbt#Compile(sbt_command_list)
   " using external file which can be tested without Vim.
   exec 'pyfile '.s:self.'/sbt.py'
 
+
+  silent! unlet g:sbt_result
+
 python << PYTHONEOF
-f = sbtCompiler.sbt(vim.eval('g:sbt_command_list'))
-vim.command("let g:sbt_result='%s'"%f)
+if sbtCompiler.startUpError != "":
+  vim.command("let g:sbt_result='%s'"% sbtCompiler.startUpError)
+  sbtCompiler.startUpError = ""
+else:
+  f = sbtCompiler.sbt(vim.eval('g:sbt_command_list'))
+  vim.command("let g:sbt_result='%s'"%f)
 PYTHONEOF
 
   " unlet g:sbt_command_list
-  " unlet g:sbt_result
   return g:sbt_result
 endf
 
-
-fun! sbt#CompileRHS(usePython, args)
-  " errorformat taken from http://code.google.com/p/simple-build-tool/wiki/IntegrationSupport
-  let ef=
+let s:ef = 
       \  '%E\ %#[error]\ %f:%l:\ %m,%C\ %#[error]\ %p^,%-C%.%#,%Z'
       \.',%W\ %#[warn]\ %f:%l:\ %m,%C\ %#[warn]\ %p^,%-C%.%#,%Z'
       \.',%-G\[info\]%.%#'
+
+" no arg? just send "" (enter)
+fun! sbt#RunCommand(...)
+  let cmd = a:0 > 0 ? a:000 : [""]
+  exec "set efm=".s:ef
+  exec 'cfile '.sbt#Compile(cmd)
+endf
+
+fun! sbt#CompileRHS(usePython, args)
+  " errorformat taken from http://code.google.com/p/simple-build-tool/wiki/IntegrationSupport
+  let ef= s:ef
 
   let args = a:args
 
@@ -63,8 +77,7 @@ fun! sbt#CompileRHS(usePython, args)
   endif
   let args = actions#ConfirmArgs(args,'sbt command')
   if a:usePython
-    let ef = escape(ef, '"\')
-    return ['exec "set efm='.ef.'" ',"exec 'cfile '.sbt#Compile(".string(args).")"]
+    return 'call sbt#RunCommand('.string(args).')'
   else
     " use RunQF
     return "call bg#RunQF(".string(args).", 'c', ".string(ef).")"

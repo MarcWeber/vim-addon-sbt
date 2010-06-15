@@ -22,6 +22,7 @@ except ImportError, e:
   is_vim = False
   DEBUG = True
   TEMP_NAME = "/tmp/file"
+  print "tempfile is ", TEMP_NAME
   SBT_JAR = os.environ.get("SBT_JAR")
   print "JAR IS %s" % SBT_JAR
 
@@ -35,11 +36,20 @@ except ImportError, e:
 
 if not globals().has_key('sbtCompiler'):
 
+  class StartupException(Exception):
+
+       def __init__(self, value):
+           self.parameter = value
+
+       def __str__(self):
+           return repr(self.parameter)
+
   # sbt_dict keeps compilation ids
   sbt_dict = {}
 
   class SBTCompiler():
 
+    # sets startUpError to file on error
     def __init__(self):
       self.debug = DEBUG
       self.tmpFile = TEMP_NAME
@@ -53,13 +63,23 @@ if not globals().has_key('sbtCompiler'):
       self.sbt_o = p.stdout
       self.sbt_i = p.stdin
 
-      self.waitForShell(None)
+      try:
+        out = open(self.tmpFile, 'w')
+        self.waitForShell(out)
+        self.startUpError = ""
+      except StartupException, e:
+        out.write(e.__str__()+"\n")
+        self.startUpError = self.tmpFile
+
     
     def waitFor(self, pattern, out):
       """ wait until pattern is found in an output line. Write non matching lines to out """
 
+
+      error_in_project = " Hit enter to retry or 'exit' to quit:"
       # This will break.. :-/ (TODO)
       pats = [ "Project does not exist, create new project? (y/N/s) ",
+              error_in_project,
               "Name: ",
               "Organization: ",
               "Version [1.0]: ",
@@ -73,6 +93,9 @@ if not globals().has_key('sbtCompiler'):
         if self.debug:
           debug("waiting for one of the patterns")
         line = self.readLineSkip(allPatterns)
+
+        if line == error_in_project:
+          raise StartupException("sbt asked to retry or exit. Fix the problem, then run :SBT to retry or restart Vim")
 
         # hack: forward pat question to user
         if line in pats:
@@ -102,7 +125,7 @@ if not globals().has_key('sbtCompiler'):
           debug('waiting for char. Received bytes: %s' % read)
         c = self.sbt_o.read(1)
         if self.debug:
-          debug("got char: %s" % c)
+          debug("got char: X%sX" % c)
         if c == "\n":
           return read
         else:
@@ -112,7 +135,9 @@ if not globals().has_key('sbtCompiler'):
         for i in range(len(l)-1,-1,-1):
           if l[i][idx] != c:
             # this pattern can no longer match
-            l.pop(i)
+            r = l.pop(i)
+            if self.debug:
+              debug("popping %s" % r)
           else:
             # full match
             if len(l[i]) == idx+1:
@@ -125,7 +150,7 @@ if not globals().has_key('sbtCompiler'):
       # remove trailing \n
       line=line[:-1]
       if self.debug:
-        debug("full line: %s" % read)
+        debug("full line: %s" % line)
       return line
 
     def waitForShell(self, out):
@@ -137,7 +162,7 @@ if not globals().has_key('sbtCompiler'):
 
       self.sbt_i.write(cmd+"\n")
       self.sbt_i.flush()
-      res = self.waitFor(".*Total time: .*completed.*", out)
+      # res = self.waitFor(".*Total time: .*completed.*", out)
       self.waitForShell(out)
       out.close()
       return self.tmpFile
@@ -147,4 +172,8 @@ if not globals().has_key('sbtCompiler'):
 
 if not is_vim:
 
-  print sbtCompiler.sbt(ask_user('sbt command:'))
+  if sbtCompiler.startUpError != "":
+    print "startup error: ", sbtCompiler.startUpError
+
+  else:
+    print sbtCompiler.sbt(ask_user('sbt command:'))

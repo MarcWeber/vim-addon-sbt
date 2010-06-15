@@ -20,5 +20,8 @@ if !exists('g:sbt')
 endif
 
 " TODO
-call actions#AddAction('run sbt with bg process (requires python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["compile"]]})})
 call actions#AddAction('run sbt with bg#RunQF'                    , {'action': funcref#Function('sbt#CompileRHS',{'args':[0,["compile"]]})})
+call actions#AddAction('run sbt with bg process (requires python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["compile"]]})})
+
+" run a sbt command manually
+command -nargs=* SBT call sbt#RunCommand(<f-args>)
