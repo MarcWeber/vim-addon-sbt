@@ -50,3 +50,8 @@ tips:
     --regex-scala=/^[ \t]*final case class[ \t]+([a-zA-Z0-9_]+)/\1/c,case classes/
     --regex-scala=/^[ \t]*object[ \t]+([a-zA-Z0-9_]+)/\1/o,objects/
     --regex-scala=/^[ \t]*private def[ \t]+([a-zA-Z0-9_]+)/\1/pd,defs/
+
+- trouble? Vim hangs?
+  Probably the pyhton script is waiting for output of the sbt command. This happens
+  when sbt starts a prompt I didn't see yet. Run sbt from console once to see whats happening
+  or switch on debugging or run the .py script from console (after defining env var SBT_JAR)

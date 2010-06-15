@@ -60,7 +60,7 @@ let s:ef =
 
 " no arg? just send "" (enter)
 fun! sbt#RunCommand(...)
-  let cmd = a:0 > 0 ? a:000 : [""]
+  let cmd = a:0 > 0 ? a:1 : [""]
   exec "set efm=".s:ef
   exec 'cfile '.sbt#Compile(cmd)
 endf
