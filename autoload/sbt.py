@@ -1,5 +1,5 @@
 import sys, tokenize, cStringIO, types, socket, string, os, re
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 
 try:
 
@@ -58,7 +58,7 @@ if not globals().has_key('sbtCompiler'):
       # start interactive mode so that we can recompile without reloading sbt
 
       p = Popen(["java","-Dsbt.log.noformat=true","-jar", SBT_JAR], \
-            shell = False, bufsize = 1, stdin = PIPE, stdout = PIPE, stderr = PIPE)
+            shell = False, bufsize = 1, stdin = PIPE, stdout = PIPE, stderr = STDOUT)
 
       self.sbt_o = p.stdout
       self.sbt_i = p.stdin
