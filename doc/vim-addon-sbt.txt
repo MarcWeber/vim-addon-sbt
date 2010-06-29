@@ -17,6 +17,9 @@ Now there is also a :SBT command. Eg try :SBT help or :SBT jetty-run
 tips:
 =====
 
+checkout http://github.com/romanroe/codefellow
+I'd like to merge this plugin with that. I contacted the author
+
 - tlib
 
   One of the dependency is tlib. You may want to disable some of those plugin by putting
