@@ -6,13 +6,20 @@ This plugin depends on other plugins. See ../vim-addon-sbt-addon-info.txt
 That's why I recommend using http://github.com/MarcWeber/vim-addon-manager to
 install this plugin.
 
-usage
-==============
+usage (running sbt)
+===================
 See documentation of vim-addon-actions (http://github.com/MarcWeber/vim-addon-actions)
 Eg <s-F2> -> select one of both sbt items, pass the command.
 Use <F2> to run/compile. Or use :ActionOnBufWrite to run a sbt command.
 
 Now there is also a :SBT command. Eg try :SBT help or :SBT jetty-run
+
+SBTAddFeature sbteclipsify sbtidea codefellow ...
+================================================
+creates plugins and porject description files unless they exist adding those
+features (see plugin/sbt.vim)
+
+You can add your own extensions easily
 
 tips:
 =====
