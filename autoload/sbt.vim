@@ -192,8 +192,69 @@ fun! sbt#AddFeature(...) abort
   endfor
 endf
 
-function sbt#AddFeatureCmdCompletion(ArgLead, CmdLine, CursorPos)
+function! sbt#AddFeatureCmdCompletion(ArgLead, CmdLine, CursorPos)
   return filter(keys(s:b),'v:val =~ '.string(a:ArgLead))
 endf
 
 " }}}
+
+" if first arg is a readable file use that else use lines from currentn buffer
+" additional args are ignore patterns used to drop matches. Example:
+" sbt#ScalaExceptionTraceToQuickFix('err.txt','\/src\/','\/src_managed\/')
+fun! sbt#ScalaExceptionTraceToQuickFix(...)
+  let list = copy(a:000)
+  if len(list) > 0 && filereadable(list[0])
+    let maybe_file = list[0]
+    let list = list[1:]
+  else
+    let maybe_file = ""
+  endif
+
+  " remaining args = ignore patterns
+  let ignore_patterns = list
+
+  let lines = (maybe_file == "")
+    \ ? getline(1,line('$'))
+    \ : readfile(maybe_file)
+  if (!exists('g:scala_source_dirs'))
+    let g:scala_source_dirs = []
+  endif
+  let scala_source_dirs = ['.']+ g:scala_source_dirs
+
+  let map = {}
+  let g:map = map
+
+  " build up map cache
+  for d in scala_source_dirs
+    for f in split(glob(d.'/**/*.scala'),"\n")
+      let base = fnamemodify(f,':t')
+      if !has_key(map, base) | let map[base] = [] | endif
+      call add(map[base], f)
+    endfor
+  endfor
+
+  let error_list = []
+  for l in lines
+    let m = matchlist(l, 'at \([^(]\+\)(\([^:)]\+\):\(\d\+\))')
+    if m == []
+      call add(error_list, {'text' : l} )
+    else
+      let files = get(map,m[2],[])
+      if ignore_patterns != []
+        call filter(files,'v:val !~ '.string(join(ignore_patterns,'\|')))
+      endif
+      if files == []
+        call add(error_list, {'text' : l} )
+      else
+        let nr = 1
+        for f in files
+          call add(error_list,
+              \ { 'text' : m[1]." nr ".nr, 'lnum' : m[3], 'filename': f } )
+          let nr = nr +1
+        endfor
+      endif
+    endif
+  endfor
+
+  call setqflist(error_list)
+endfun

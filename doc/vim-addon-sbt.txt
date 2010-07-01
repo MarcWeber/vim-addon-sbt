@@ -14,12 +14,23 @@ Use <F2> to run/compile. Or use :ActionOnBufWrite to run a sbt command.
 
 Now there is also a :SBT command. Eg try :SBT help or :SBT jetty-run
 
-SBTAddFeature sbteclipsify sbtidea codefellow ...
+:SBTAddFeature sbteclipsify sbtidea codefellow ...
 ================================================
 creates plugins and porject description files unless they exist adding those
 features (see plugin/sbt.vim)
 
 You can add your own extensions easily
+
+
+:ScalaExceptionTraceToQuickFix
+=============================
+define list of source directories and make vim read a stack trace into quickfix.
+You can use ignore patterns
+
+
+:SBTOpenBuildAndPluginfiles
+============================
+open all project/{plugins,build}/*.scala files
 
 tips:
 =====
