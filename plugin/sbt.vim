@@ -76,7 +76,7 @@ if get(s:c,'setup_default_sbt_features',1)
   if !has_key(s:b, 'codefellow')
     let s:b['codefellow'] = {
       \  'plugins_code': ['val a = "de.tuxed" % "codefellow-plugin" % "0.1"']
-      \ ,'plugins_with': ['with de.tuxed.codefellow.plugin.CodeFellowPlugin']
+      \ ,'build_with': ['with de.tuxed.codefellow.plugin.CodeFellowPlugin']
       \ }
   endif
 endif

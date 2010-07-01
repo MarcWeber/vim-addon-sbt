@@ -158,12 +158,14 @@ fun! sbt#AddFeature(...) abort
         " add with traits
         if dw 
           normal gg
-          if !search('class') || !search('{')
+          " ^class to find the top level class only
+          if !search('^class') || !search('{')
             echoe "no class found. Can't add with"
           else
             if col('.') > 1
               " put { into new line:
-              normal "i<cr>"
+              s/ {$/{/e
+              exec "normal $i\<cr>"
             endif
             normal k
             " add "with XX" before opening { as new line if it doesn't exist
