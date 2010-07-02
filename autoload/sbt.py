@@ -10,9 +10,13 @@ try:
   TEMP_NAME = vim.eval("tempname()")
   SBT_JAR = vim.eval('SBT_JAR()')
 
+
+  # TODO use vimQuote everywhere
+  def vimQuote(s):
+    return '"%s"' % s.replace('"', '\\"').replace("\n", "\\n")
+
   def debug(s):
-    # should be escaped..
-    vim.command("echoe '%s'" % s)
+    vim.command("echoe '%s'" % vimQuote(s))
 
   def ask_user(question):
     return vim.eval("input('%s')" % question)
