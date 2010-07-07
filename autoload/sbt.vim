@@ -1,6 +1,5 @@
 exec scriptmanager#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
 let s:c['mxmlc_default_args'] = get(s:c,'mxmlc_default_args', ['--strict=true'])
-exec scriptmanager#DefineAndBind('s:b','s:c["sbt_features"]', '{}')
 
 if !exists('g:sbt_debug')
   let g:sbt_debug = 0
@@ -140,10 +139,22 @@ fun! sbt#AddImports(imports)
   endfor
 endf
 
-" takes keys. See plugin/sbt.vim, s:b
+fun! sbt#ListRTPFiles(path, name, ext)
+  let matches = []
+  for r in split(&runtimepath,',')
+    let matches += split(glob(r.'/'.a:path.'/'.a:name.a:ext),"\n")
+  endfor
+  return matches
+endf
+
+fun! sbt#FeatureDict(name)
+  return sbt#ParseInfoFile(
+    \ tlib#input#List("s","select dict", sbt#ListRTPFiles('sbt-extensions',a:name,'.txt')))
+endf
+
 fun! sbt#AddFeature(...) abort
   for key in a:000
-    let feature = s:b[key]
+    let feature = sbt#FeatureDict(key)
     for type in ['plugins','build']
       let key_names = map(['_imports','_with','_code'],string(type).'.v:val')
       let [ki,kw,kc] = key_names
@@ -195,10 +206,44 @@ fun! sbt#AddFeature(...) abort
 endf
 
 function! sbt#AddFeatureCmdCompletion(ArgLead, CmdLine, CursorPos)
-  return filter(keys(s:b),'v:val =~ '.string(a:ArgLead))
+  return filter(map(sbt#ListRTPFiles('sbt-extensions','*','.txt'),'fnamemodify(v:val,":t")[:-5]'),'v:val =~ '.string(a:ArgLead))
 endf
-
 " }}}
+
+
+
+" parse config file which looks like this:
+" ==key:
+" \line1
+" \line2
+"
+" ==key2:
+" \line1
+" \line2
+"
+" only lines which are prefixed by \ are concatenated. This is for readability
+fun! sbt#ParseInfoFile(file)
+  let lines = readfile(a:file,'b')
+  let last_key = ''
+  let conc = []
+  let d = {}
+  let regex='^==\zs[^ ]*\ze:'
+  for l in lines
+    if l =~ regex
+      if last_key != ''
+        let d[last_key] = conc
+        let conc = []
+      endif
+      let last_key = matchstr(l, regex)
+    else
+      if l =~ '^\' | call add(conc,l[1:]) | endif
+    endif
+  endfor
+  if last_key != ''
+    let d[last_key] = conc
+  endif
+  return d
+endf
 
 " if first arg is a readable file use that else use lines from currentn buffer
 " additional args are ignore patterns used to drop matches. Example:

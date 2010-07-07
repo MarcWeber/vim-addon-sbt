@@ -16,11 +16,9 @@ Now there is also a :SBT command. Eg try :SBT help or :SBT jetty-run
 
 :SBTAddFeature sbteclipsify sbtidea codefellow ...
 ================================================
-creates plugins and porject description files unless they exist adding those
-features (see plugin/sbt.vim)
-
-You can add your own extensions easily
-
+creates plugins and project description files unless they exist adding those
+features (see $RUNTIMEPATH/sbt-extensions/*.txt)
+Implementation details see SbtAddFeature
 
 :ScalaExceptionTraceToQuickFix
 =============================

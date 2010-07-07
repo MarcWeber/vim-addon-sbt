@@ -1,0 +1,5 @@
+==plugins_code:
+\val codefellow = "de.tuxed" % "codefellow-plugin" % "0.3"
+
+==build_with:
+\with de.tuxed.codefellow.plugin.CodeFellowPlugin
