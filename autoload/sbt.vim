@@ -26,17 +26,13 @@ let s:self=expand('<sfile>:h')
 
 
 function! sbt#SBTCommandCompletion(ArgLead, CmdLine, CursorPos)
-  let list = split(join(readfile(sbt#Compile("\t"),'b'),"\n"),'\W\+')
+  let list = split(join(readfile(sbt#Compile(["\t"]),'b'),"\n"),'\W\+')
   return filter(list,'v:val =~ '.string(a:ArgLead))
 endf
 
 " TODO implement shutdown, clean up ?
 "      support quoting of arguments
 fun! sbt#Compile(sbt_command_list)
-
-  if a:sbt_command_list != "\t"
-    let a:sbt_command_list .= "\n"
-  endif
 
   let g:sbt_command_list = a:sbt_command_list
 

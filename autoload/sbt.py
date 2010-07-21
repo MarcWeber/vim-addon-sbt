@@ -168,7 +168,10 @@ if not globals().has_key('sbtCompiler'):
     
     def sbt(self, args):
       out = open(self.tmpFile, 'w')
-      cmd = " ".join(args)
+      if args == ["\t"]:
+        cmd = "\t"
+      else:
+        cmd = " ".join(args)+"\n"
 
       self.sbt_i.write(cmd)
       self.sbt_i.flush()
