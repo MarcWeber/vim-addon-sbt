@@ -28,6 +28,10 @@ except ImportError, e:
   TEMP_NAME = "/tmp/file"
   print "tempfile is ", TEMP_NAME
   SBT_JAR = os.environ.get("SBT_JAR")
+  if SBT_JAR == None:
+    print "You have to set env var SBT_JAR!"
+    sys.exit(1)
+
   print "JAR IS %s" % SBT_JAR
 
   def debug(s):
@@ -72,7 +76,9 @@ if not globals().has_key('sbtCompiler'):
         self.waitForShell(out)
         self.startUpError = ""
       except StartupException, e:
+        out.write("==!> STARTUP / RELEOAD ERROR ! !")
         out.write(e.__str__()+"\n")
+        out.flush()
         self.startUpError = self.tmpFile
 
     
@@ -164,7 +170,7 @@ if not globals().has_key('sbtCompiler'):
       out = open(self.tmpFile, 'w')
       cmd = " ".join(args)
 
-      self.sbt_i.write(cmd+"\n")
+      self.sbt_i.write(cmd)
       self.sbt_i.flush()
       # res = self.waitFor(".*Total time: .*completed.*", out)
       self.waitForShell(out)
@@ -180,4 +186,5 @@ if not is_vim:
     print "startup error: ", sbtCompiler.startUpError
 
   else:
-    print sbtCompiler.sbt(ask_user('sbt command:'))
+    while True:
+      print sbtCompiler.sbt(ask_user('sbt command:'))

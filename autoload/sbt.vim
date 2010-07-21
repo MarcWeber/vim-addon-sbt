@@ -24,9 +24,19 @@ endif
 
 let s:self=expand('<sfile>:h')
 
+
+function! sbt#SBTCommandCompletion(ArgLead, CmdLine, CursorPos)
+  let list = split(join(readfile(sbt#Compile("\t"),'b'),"\n"),'\W\+')
+  return filter(list,'v:val =~ '.string(a:ArgLead))
+endf
+
 " TODO implement shutdown, clean up ?
 "      support quoting of arguments
 fun! sbt#Compile(sbt_command_list)
+
+  if a:sbt_command_list != "\t"
+    let a:sbt_command_list .= "\n"
+  endif
 
   let g:sbt_command_list = a:sbt_command_list
 
@@ -42,11 +52,11 @@ fun! sbt#Compile(sbt_command_list)
 
 python << PYTHONEOF
 if sbtCompiler.startUpError != "":
-  vim.command("let g:sbt_result='%s'"% sbtCompiler.startUpError)
+  vim.command("let g:sbt_result="+vimQuote(sbtCompiler.startUpError))
   sbtCompiler.startUpError = ""
 else:
   f = sbtCompiler.sbt(vim.eval('g:sbt_command_list'))
-  vim.command("let g:sbt_result='%s'"%f)
+  vim.command("let g:sbt_result="+vimQuote(f))
 PYTHONEOF
 
   " unlet g:sbt_command_list
@@ -54,7 +64,8 @@ PYTHONEOF
 endf
 
 let s:ef = 
-      \  '%E\ %#[error]\ %f:%l:\ %m,%C\ %#[error]\ %p^,%-C%.%#,%Z'
+      \  '%+G==!>%.%#'
+      \.',%E\ %#[error]\ %f:%l:\ %m,%C\ %#[error]\ %p^,%-C%.%#,%Z'
       \.',%W\ %#[warn]\ %f:%l:\ %m,%C\ %#[warn]\ %p^,%-C%.%#,%Z'
       \.',%-G\[info\]%.%#'
 
@@ -305,3 +316,5 @@ fun! sbt#ScalaExceptionTraceToQuickFix(...)
 
   call setqflist(error_list)
 endfun
+
+" vim: fdm=marker
