@@ -8,6 +8,20 @@ install this plugin.
 
 usage (running sbt)
 ===================
+
+! IMPORTANT !:
+
+  make sure that :echo SBT_JAR() returns the .jar location of sbt. If it does not
+  override it in your ~/.vimrc or send a patch which makes it find it on your
+  machine.
+
+  You can override it by putting these lines into your ~/.vimrc
+
+  fun SBT_JAR()
+    return "your hardcoded value"
+  endfun
+
+
 See documentation of vim-addon-actions (http://github.com/MarcWeber/vim-addon-actions)
 Eg <s-F2> -> select one of both sbt items, pass the command.
 Use <F2> to run/compile. Or use :ActionOnBufWrite to run a sbt command.
@@ -74,3 +88,20 @@ I'd like to merge this plugin with that. I contacted the author
   Probably the pyhton script is waiting for output of the sbt command. This happens
   when sbt starts a prompt I didn't see yet. Run sbt from console once to see whats happening
   or switch on debugging or run the .py script from console (after defining env var SBT_JAR)
+
+
+  Note: you can trouble shoot by running the python file only:
+    export SBT_JAR="location of your sbt.jar file"
+    python autoload/sbt.py
+  
+  Lars Hvile told me that Vim also hangs if the default SBT_JAR function has
+  trouble finding the .jar itself. See configuration section in this file
+
+BUGS:
+=====
+- I used some hardcoded values in the py script which will break.
+  So be prepared that Vim could hang if you use a different sbt version and use the :SBT command
+  to create a new SBT project saying "y" instead of "s"
+- Its not as nice as Ensime. Yes I know. We all want Emacs with Vim key bindings.
+  Try vimpulse Emacs plugin and help fixing the unbearable issues Emacs making
+  it that hard to use for Vim users ..
