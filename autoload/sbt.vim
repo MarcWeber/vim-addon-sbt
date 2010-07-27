@@ -59,11 +59,23 @@ PYTHONEOF
   return g:sbt_result
 endf
 
-let s:ef = 
-      \  '%+G==!>%.%#'
-      \.',%E\ %#[error]\ %f:%l:\ %m,%C\ %#[error]\ %p^,%-C%.%#,%Z'
-      \.',%W\ %#[warn]\ %f:%l:\ %m,%C\ %#[warn]\ %p^,%-C%.%#,%Z'
-      \.',%-G\[info\]%.%#'
+if (!exists('g:sbt_short_errors'))
+  let g:sbt_short_errors = 0
+endif
+
+if g:sbt_short_errors
+  let s:ef = 
+        \  '%+G==!>%.%#'
+        \.',%E\ %#[error]\ %f:%l:\ %m,%C\ %#[error]\ %p^,%-C%.%#,%Z'
+        \.',%W\ %#[warn]\ %f:%l:\ %m,%C\ %#[warn]\ %p^,%-C%.%#,%Z'
+        \.',%-G\[info\]%.%#'
+else
+  let s:ef = 
+        \ '\ %#[error]\ %f:%l:\ %m'
+        \.',\ %#[warn]\ %f:%l:\ %m'
+        \.',%+G==!>%.%#'
+        \.',%-G\[info\]%.%#'
+endif
 
 " no arg? just send "" (enter)
 fun! sbt#RunCommand(...)
