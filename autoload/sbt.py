@@ -89,6 +89,7 @@ if not globals().has_key('sbtCompiler'):
       error_in_project = " Hit enter to retry or 'exit' to quit:"
       # This will break.. :-/ (TODO)
       pats = [ "Project does not exist, create new project? (y/N/s) ",
+              "Provide a new Scala version or press enter to exit: ",
               error_in_project,
               "Name: ",
               "Organization: ",

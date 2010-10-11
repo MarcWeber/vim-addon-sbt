@@ -47,7 +47,7 @@ open all project/{plugins,build}/*.scala files
 tips:
 =====
 
-checkout http://github.com/romanroe/codefellow
+checkout http://github.com/MarcWeber/codefellow
 I'd like to merge this plugin with that. I contacted the author
 
 - tlib

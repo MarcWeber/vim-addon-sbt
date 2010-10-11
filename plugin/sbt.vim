@@ -23,15 +23,18 @@ if !exists('g:sbt')
 endif
 
 " TODO
-call actions#AddAction('run sbt with bg#RunQF'                    , {'action': funcref#Function('sbt#CompileRHS',{'args':[0,["compile"]]})})
-call actions#AddAction('run sbt with bg process (requires python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["compile"]]})})
+call actions#AddAction('run sbt compile with bg#RunQF'                    , {'action': funcref#Function('sbt#CompileRHS',{'args':[0,["compile"]]})})
+
+call actions#AddAction('run sbt compile with background process (python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["compile"]]})})
+call actions#AddAction('run sbt run     with background process (python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["run"]]})})
+call actions#AddAction('run sbt proguard     with background process (python)', {'action': funcref#Function('sbt#CompileRHS',{'args':[1,["proguard"]]})})
 
 " run a sbt command manually
-command -nargs=* -complete=customlist,sbt#SBTCommandCompletion SBT call sbt#RunCommand([<f-args>])
+command! -nargs=* -complete=customlist,sbt#SBTCommandCompletion SBT call sbt#RunCommand([<f-args>])
 
-command -nargs=* -complete=file ScalaExceptionTraceToQuickFix call sbt#ScalaExceptionTraceToQuickFix(<f-args>)
-command -nargs=* -complete=customlist,sbt#AddFeatureCmdCompletion SBTAddFeature call sbt#AddFeature(<f-args>)
-command -nargs=0 SBTOpenBuildAndPluginfiles exec 'n project/build/*.scala | n project/plugins/*.scala'
+command! -nargs=* -complete=file ScalaExceptionTraceToQuickFix call sbt#ScalaExceptionTraceToQuickFix(<f-args>)
+command! -nargs=* -complete=customlist,sbt#AddFeatureCmdCompletion SBTAddFeature call sbt#AddFeature(<f-args>)
+command! -nargs=0 SBTOpenBuildAndPluginfiles exec 'n project/build/*.scala | n project/plugins/*.scala'
 
 if get(s:c,'setup_default_sbt_features',1)
   " snippets to be added to .scala files to enable those features
