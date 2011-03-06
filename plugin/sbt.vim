@@ -1,5 +1,5 @@
-exec scriptmanager#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
-exec scriptmanager#DefineAndBind('s:b','s:c["sbt_features"]', '{}')
+exec vam#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
+exec vam#DefineAndBind('s:b','s:c["sbt_features"]', '{}')
 
 " sbt-launch-*.jar location
 if !exists('*SBT_JAR')

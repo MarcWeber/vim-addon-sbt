@@ -1,4 +1,4 @@
-exec scriptmanager#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
+exec vam#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
 let s:c['mxmlc_default_args'] = get(s:c,'mxmlc_default_args', ['--strict=true'])
 
 if !exists('g:sbt_debug')
