@@ -13,7 +13,7 @@ try:
 
   # TODO use vimQuote everywhere
   def vimQuote(s):
-    return '"%s"' % s.replace('"', '\\"').replace("\n", "\\n")
+    return '"%s"' % s.replace("\\","\\\\").replace('"', '\\"').replace("\n", "\\n")
 
   def debug(s):
     vim.command("echoe '%s'" % vimQuote(s))
