@@ -1,5 +1,7 @@
-exec vam#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
-exec vam#DefineAndBind('s:b','s:c["sbt_features"]', '{}')
+" exec vam#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
+" exec vam#DefineAndBind('s:b','s:c["sbt_features"]', '{}')
+if !exists('g:vim_addon_sbt') | let g:vim_addon_sbt = {} | endif | let s:c = g:vim_addon_sbt
+if !exists('s:c["sbt_features"]') | let s:c["sbt_features"] = {} | endif | let s:b = s:c["sbt_features"]
 
 " sbt-launch-*.jar location
 if !exists('*SBT_JAR')

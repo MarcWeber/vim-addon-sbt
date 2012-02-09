@@ -1,4 +1,5 @@
-exec vam#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
+" exec vam#DefineAndBind('s:c','g:vim_addon_sbt', '{}')
+if !exists('g:vim_addon_sbt') | let g:vim_addon_sbt = {} | endif | let s:c = g:vim_addon_sbt
 let s:c['mxmlc_default_args'] = get(s:c,'mxmlc_default_args', ['--strict=true'])
 
 if !exists('g:sbt_debug')
@@ -92,7 +93,9 @@ fun! sbt#CompileRHS(usePython, args)
 
   " let ef = escape(ef, '"\')
   if !a:usePython
-    let args =  ["java", "-Dsbt.log.noformat=true", "-jar", SBT_JAR()] + args
+    "  "-XX:+CMSPermGenSweepingEnabled", 
+    let extras = ["-XX:+CMSClassUnloadingEnabled", '-XX:MaxPermSize=256m', '-Xmx512M',  '-Xss2M' ]
+    let args =  ["java"] ++ extras ++ [ "-Dsbt.log.noformat=true", "-jar", SBT_JAR()] + args
   endif
   let args = actions#ConfirmArgs(args,'sbt command')
   if a:usePython

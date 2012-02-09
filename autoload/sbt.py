@@ -82,23 +82,26 @@ if not globals().has_key('sbtCompiler'):
         self.startUpError = self.tmpFile
 
     
-    def waitFor(self, pattern, out):
-      """ wait until pattern is found in an output line. Write non matching lines to out """
+    def waitFor(self, patterns, out):
+      """ wait until one of patterns is found in an output line. Write non matching lines to out """
 
 
       error_in_project = " Hit enter to retry or 'exit' to quit:"
+      error_during_sbt_execution = "Error during sbt execution: "
       # This will break.. :-/ (TODO)
       pats = [ "Project does not exist, create new project? (y/N/s) ",
               "Provide a new Scala version or press enter to exit: ",
+              "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?",
               error_in_project,
               "Name: ",
               "Organization: ",
               "Version [1.0]: ",
               "Scala version [2.7.7]: ",
-              "sbt version [0.7.4]: " ]
+              "sbt version [0.7.4]: "
+            ]
 
       allPatterns = pats[:]
-      allPatterns.append(pattern)
+      allPatterns.extend(patterns)
 
       while 1:
         if self.debug:
@@ -114,10 +117,12 @@ if not globals().has_key('sbtCompiler'):
           self.sbt_i.flush()
           continue
 
-        match = re.match(pattern, line)
-        if match != None:
-          return match
-        elif out != None:
+        for p in patterns:
+          match = re.match(p, line)
+          out.write(line+"\n")
+          if match != None:
+            return match
+        if out != None:
           out.write(line+"\n")
 
 
@@ -165,7 +170,7 @@ if not globals().has_key('sbtCompiler'):
       return line
 
     def waitForShell(self, out):
-      self.waitFor("> ", out)
+      self.waitFor(["> ","Error during sbt execution: "], out)
     
     def sbt(self, args):
       out = open(self.tmpFile, 'w')
@@ -176,7 +181,7 @@ if not globals().has_key('sbtCompiler'):
 
       self.sbt_i.write(cmd)
       self.sbt_i.flush()
-      # res = self.waitFor(".*Total time: .*completed.*", out)
+      # res = self.waitFor([".*Total time: .*completed.*"], out)
       self.waitForShell(out)
       out.close()
       return self.tmpFile
