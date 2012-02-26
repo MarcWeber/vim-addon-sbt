@@ -119,7 +119,6 @@ if not globals().has_key('sbtCompiler'):
 
         for p in patterns:
           match = re.match(p, line)
-          out.write(line+"\n")
           if match != None:
             return match
         if out != None:
