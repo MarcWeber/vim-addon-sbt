@@ -21,7 +21,7 @@ try:
   def ask_user(question):
     return vim.eval("input('%s')" % question)
 
-except ImportError, e:
+except ImportError as e:
 
   is_vim = False
   DEBUG = True
@@ -75,7 +75,7 @@ if not globals().has_key('sbtCompiler'):
         out = open(self.tmpFile, 'w')
         self.waitForShell(out)
         self.startUpError = ""
-      except StartupException, e:
+      except StartupException as e:
         out.write("==!> STARTUP / RELEOAD ERROR ! !")
         out.write(e.__str__()+"\n")
         out.flush()
