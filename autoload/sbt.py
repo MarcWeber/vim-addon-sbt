@@ -1,4 +1,4 @@
-import sys, tokenize, cStringIO, types, socket, string, os, re
+import sys, tokenize, types, socket, string, os, re
 from subprocess import Popen, PIPE, STDOUT
 
 try:
@@ -26,23 +26,23 @@ except ImportError as e:
   is_vim = False
   DEBUG = True
   TEMP_NAME = "/tmp/file"
-  print "tempfile is ", TEMP_NAME
+  print ("tempfile is " ,TEMP_NAME)
   SBT_JAR = os.environ.get("SBT_JAR")
   if SBT_JAR == None:
-    print "You have to set env var SBT_JAR!"
+    print ("You have to set env var SBT_JAR!")
     sys.exit(1)
 
-  print "JAR IS %s" % SBT_JAR
+  print ("JAR IS %s" % SBT_JAR)
 
   def debug(s):
-    print "debug: ", s
+    print ("debug: ", s)
 
   def ask_user(question):
-    print "ABC"
-    print question
+    print ("ABC")
+    print (question)
     return raw_input()
 
-if not globals().has_key('sbtCompiler'):
+if not 'sbtCompiler' in globals():
 
   class StartupException(Exception):
 
@@ -138,7 +138,8 @@ if not globals().has_key('sbtCompiler'):
 
         if self.debug:
           debug('waiting for char. Received bytes: %s' % read)
-        c = self.sbt_o.read(1)
+        # TODO: think about encoding!
+        c = self.sbt_o.read(1).decode('utf-8')
         if self.debug:
           debug("got char: X%sX" % c)
         if c == "\n":
@@ -161,7 +162,8 @@ if not globals().has_key('sbtCompiler'):
 
       if self.debug:
         debug("waiting for eol. Received bytes: %s" % read)
-      line = read + self.sbt_o.readline()
+      # TODO: think about encoding
+      line = read + self.sbt_o.readline().decode('utf-8')
       # remove trailing \n
       line=line[:-1]
       if self.debug:
@@ -191,8 +193,8 @@ if not globals().has_key('sbtCompiler'):
 if not is_vim:
 
   if sbtCompiler.startUpError != "":
-    print "startup error: ", sbtCompiler.startUpError
+    print ("startup error: ", sbtCompiler.startUpError)
 
   else:
     while True:
-      print sbtCompiler.sbt(ask_user('sbt command:'))
+      print (sbtCompiler.sbt(ask_user('sbt command:')))
